@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interclasses Digital - Gestão</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <h1>🎮 Interclasses 2026</h1>
+        <div class="menu">
+            <button onclick="showTab('tab-competidores')">Competidores</button>
+            <button onclick="showTab('tab-times')">Times</button>
+            <button onclick="showTab('tab-jogos')">Jogos</button>
+            <button onclick="showTab('tab-confrontos')">Confrontos</button>
+        </div>
+    </nav>
+
+    <main id="content">
+        <section id="tab-competidores" class="tab-content active">
+            <h2>Novo Competidor</h2>
+            <form id="form-competidor">
+                <input type="text" id="nome-comp" placeholder="Nome do Jogador" required>
+                <button type="submit">Adicionar</button>
+            </form>
+            <ul id="lista-competidores"></ul>
+        </section>
+
+        <section id="tab-times" class="tab-content">
+            <h2>Novo Time</h2>
+            <form id="form-time">
+                <input type="text" id="nome-time" placeholder="Nome do Time" required>
+                <button type="submit">Criar Time</button>
+            </form>
+            <ul id="lista-times"></ul>
+        </section>
+
+        <section id="tab-jogos" class="tab-content">
+            <h2>Cadastrar Jogo</h2>
+            <form id="form-jogo">
+                <input type="text" id="nome-jogo" placeholder="Ex: CS:GO" required>
+                <button type="submit">Cadastrar</button>
+            </form>
+            <ul id="lista-jogos"></ul>
+        </section>
+
+        <section id="tab-confrontos" class="tab-content">
+            <h2>Registrar Partida</h2>
+            <form id="form-confronto">
+                <select id="select-time1" required></select>
+                <span>VS</span>
+                <select id="select-time2" required></select>
+                <select id="select-jogo" required></select>
+                <input type="text" id="placar" placeholder="Placar (ex: 16x10)">
+                <button type="submit">Registrar</button>
+            </form>
+            <div id="lista-confrontos" class="cards-confronto"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

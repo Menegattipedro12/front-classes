@@ -1,0 +1,17 @@
+{
+    "competidores": [
+      {"id": 1, "nome": "Alice Souza"},
+      {"id": 2, "nome": "Bruno Lima"}
+    ],
+    "times": [
+      {"id": 1, "nome": "Cyber Knights", "membros": [1]},
+      {"id": 2, "nome": "Data Wizards", "membros": [2]}
+    ],
+    "jogos": [
+      {"id": 1, "nome": "League of Legends"},
+      {"id": 2, "nome": "Valorant"}
+    ],
+    "confrontos": [
+      {"id": 1, "idTime1": 1, "idTime2": 2, "idJogo": 1, "placar": "2 x 1"}
+    ]
+  }
