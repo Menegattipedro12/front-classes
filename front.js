@@ -1,93 +1,107 @@
-let db = { competidores: [], times: [], jogos: [], confrontos: [] };
+// Nosso banco de dados na memória
+let bd = { competidores: [], times: [], jogos: [], confrontos: [] };
 
-// Simula o fetch do JSON inicial
-async function init() {
+// Função que inicia o sistema
+async function iniciarSistema() {
     try {
-        const response = await fetch('dados.json');
-        db = await response.json();
-        renderAll();
-    } catch (e) {
-        console.error("Erro ao carregar JSON. Verifique se está usando um servidor local.", e);
+        // Tenta ler o JSON externo
+        const resposta = await fetch('dados.json');
+        if (!resposta.ok) throw new Error("Não conseguiu ler o arquivo");
+        bd = await resposta.json();
+    } catch (erro) {
+        console.warn("Bloqueio de navegador detectado. Usando dados de teste internos.");
+        // Se o navegador bloquear o JSON, ele carrega estes dados para não quebrar a tela
+        bd = {
+            "competidores": [{"id": 1, "nome": "Alice Souza"}, {"id": 2, "nome": "Bruno Lima"}],
+            "times": [{"id": 1, "nome": "Cyber Knights"}, {"id": 2, "nome": "Data Wizards"}],
+            "jogos": [{"id": 1, "nome": "League of Legends"}, {"id": 2, "nome": "Valorant"}],
+            "confrontos": [{"id": 1, "idTime1": 1, "idTime2": 2, "idJogo": 1, "placar": "2 x 1"}]
+        };
     }
+    atualizarTela();
 }
 
-// Navegação de Abas
-function showTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
+// Navegação entre as abas
+function mudarAba(idAba) {
+    document.querySelectorAll('.aba').forEach(aba => aba.classList.remove('ativa'));
+    document.getElementById(idAba).classList.add('ativa');
 }
 
-// Renderização Geral
-function renderAll() {
-    renderList('lista-competidores', db.competidores, (c) => `<span>${c.nome}</span>`);
-    renderList('lista-times', db.times, (t) => `<span>${t.nome}</span>`);
-    renderList('lista-jogos', db.jogos, (j) => `<span>${j.nome}</span>`);
-    
-    // Renderiza Confrontos
-    const containerConf = document.getElementById('lista-confrontos');
-    containerConf.innerHTML = db.confrontos.map(c => {
-        const t1 = db.times.find(t => t.id == c.idTime1)?.nome;
-        const t2 = db.times.find(t => t.id == c.idTime2)?.nome;
-        const jogo = db.jogos.find(j => j.id == c.idJogo)?.nome;
-        return `<div class="confronto-card">
-            <strong>${jogo}</strong><br>
-            ${t1} <small>${c.placar}</small> ${t2}
-        </div>`;
+// Atualiza todas as listas e selects da tela
+function atualizarTela() {
+    // Atualiza listas simples
+    renderizarLista('lista-competidores', bd.competidores);
+    renderizarLista('lista-times', bd.times);
+    renderizarLista('lista-jogos', bd.jogos);
+
+    // Atualiza os selects do formulário de confrontos
+    preencherSelect('select-time1', bd.times);
+    preencherSelect('select-time2', bd.times);
+    preencherSelect('select-jogo', bd.jogos);
+
+    // Atualiza os cards de confrontos
+    const containerConfrontos = document.getElementById('lista-confrontos');
+    containerConfrontos.innerHTML = bd.confrontos.map(conf => {
+        const time1 = bd.times.find(t => t.id == conf.idTime1)?.nome || 'Time Removido';
+        const time2 = bd.times.find(t => t.id == conf.idTime2)?.nome || 'Time Removido';
+        const jogo = bd.jogos.find(j => j.id == conf.idJogo)?.nome || 'Jogo Removido';
+        
+        return `
+            <div class="card-confronto">
+                <h4>${jogo}</h4>
+                <p><strong>${time1}</strong> ${conf.placar} <strong>${time2}</strong></p>
+            </div>
+        `;
     }).join('');
-
-    updateSelects();
 }
 
-function renderList(id, data, template) {
-    const el = document.getElementById(id);
-    el.innerHTML = data.map(item => `<li>${template(item)}</li>`).join('');
+// Funções de ajuda para desenhar na tela
+function renderizarLista(idElemento, arrayDados) {
+    document.getElementById(idElemento).innerHTML = arrayDados.map(item => `<li>${item.nome}</li>`).join('');
 }
 
-function updateSelects() {
-    const fill = (id, data) => {
-        const sel = document.getElementById(id);
-        sel.innerHTML = data.map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
-    };
-    fill('select-time1', db.times);
-    fill('select-time2', db.times);
-    fill('select-jogo', db.jogos);
+function preencherSelect(idElemento, arrayDados) {
+    document.getElementById(idElemento).innerHTML = arrayDados.map(item => `<option value="${item.id}">${item.nome}</option>`).join('');
 }
 
-// Handlers de Formulário
-document.getElementById('form-competidor').onsubmit = (e) => {
+// --- EVENTOS DE FORMULÁRIO (CADASTROS) ---
+
+document.getElementById('form-competidor').addEventListener('submit', function(e) {
     e.preventDefault();
-    const nome = document.getElementById('nome-comp').value;
-    db.competidores.push({ id: Date.now(), nome });
-    e.target.reset();
-    renderAll();
-};
+    const nome = document.getElementById('nome-competidor').value;
+    bd.competidores.push({ id: Date.now(), nome: nome });
+    this.reset();
+    atualizarTela();
+});
 
-document.getElementById('form-time').onsubmit = (e) => {
+document.getElementById('form-time').addEventListener('submit', function(e) {
     e.preventDefault();
     const nome = document.getElementById('nome-time').value;
-    db.times.push({ id: Date.now(), nome, membros: [] });
-    e.target.reset();
-    renderAll();
-};
+    bd.times.push({ id: Date.now(), nome: nome });
+    this.reset();
+    atualizarTela();
+});
 
-document.getElementById('form-jogo').onsubmit = (e) => {
+document.getElementById('form-jogo').addEventListener('submit', function(e) {
     e.preventDefault();
     const nome = document.getElementById('nome-jogo').value;
-    db.jogos.push({ id: Date.now(), nome });
-    e.target.reset();
-    renderAll();
-};
+    bd.jogos.push({ id: Date.now(), nome: nome });
+    this.reset();
+    atualizarTela();
+});
 
-document.getElementById('form-confronto').onsubmit = (e) => {
+document.getElementById('form-confronto').addEventListener('submit', function(e) {
     e.preventDefault();
-    db.confrontos.push({
+    bd.confrontos.push({
         id: Date.now(),
         idTime1: document.getElementById('select-time1').value,
         idTime2: document.getElementById('select-time2').value,
         idJogo: document.getElementById('select-jogo').value,
         placar: document.getElementById('placar').value
     });
-    renderAll();
-};
+    this.reset();
+    atualizarTela();
+});
 
-init();
+// Roda a função principal quando a página carrega
+iniciarSistema();
